@@ -1,4 +1,5 @@
 detection_conf = 0.7
 
 class Config:
-    DEVICE = "cpu"
+    DEVICE = "mps"
+    OUTPUT_DIR = "output"
