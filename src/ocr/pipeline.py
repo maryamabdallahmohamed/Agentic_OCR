@@ -2,13 +2,9 @@ from typing import List, Union, Optional, Dict, Any
 import os
 import re
 from utils.get_logger import get_logger
-logger = get_logger(__name__)
-
 from PIL import Image
 from pdf2image import convert_from_path
-from bs4 import BeautifulSoup
 from tqdm import tqdm
-
 from surya.foundation import FoundationPredictor
 from surya.recognition import RecognitionPredictor
 from surya.detection import DetectionPredictor
@@ -17,6 +13,7 @@ from src.ocr.text_normalization import normalize_arabic, html_to_text
 # -----------------------------
 # Text normalization utilities
 # -----------------------------
+logger = get_logger('ocr_pipeline')
 
 
 class OCRPipeline:
@@ -70,7 +67,6 @@ class OCRPipeline:
             for text_line in text_lines:
                 lines.append(text_line.text)
         raw_text = "\n".join(lines).strip()
-        # Normalize + cleanse
         cleaned = normalize_arabic(raw_text)
         cleaned = html_to_text(cleaned)
         return cleaned
@@ -79,13 +75,8 @@ class OCRPipeline:
     # PDF OCR end-to-end
     # -----------------------------
 
-    
-    def run_pdf_ocr(
-        self,
-        pdf_path_or_paths: Union[str, List[str]],
-        limit: Optional[int] = None,
-        dpi: int = 300,
-    ) -> Dict[int, Dict[str, Any]]:
+
+    def run_pdf_ocr( self, pdf_path_or_paths: Union[str, List[str]],dpi: int = 300,) -> Dict[int, Dict[str, Any]]:
         """
         Convert PDF(s) to images and run OCR page by page.
         Returns a dict keyed by page index with the OCR result.
@@ -94,8 +85,6 @@ class OCRPipeline:
         results: Dict[int, Dict[str, Any]] = {}
 
         for idx, img in tqdm(enumerate(pages, start=1), desc="Running OCR"):
-            if limit and idx > limit:
-                break
             pred_text = self.ocr_image(img)
             results[idx] = {
                 "pred": pred_text,

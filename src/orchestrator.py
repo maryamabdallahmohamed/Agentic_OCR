@@ -1,12 +1,8 @@
 from typing import Union, List, Optional, Dict, Any
 import os
 import json
-
-
 from utils.get_logger import get_logger
 from utils.settings import Config
-
-
 from src.ocr.pipeline import OCRPipeline
 
 logging = get_logger('orchestrator')
@@ -19,18 +15,13 @@ class Orchestrator:
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
-    def run(
-        self,
-        input_path: Union[str, List[str]],
-        limit: Optional[int] = None,
-        output_filename: str = "_ocr.json",
-    ) -> Dict[int, Dict[str, Any]]:
+    def run( self,input_path: Union[str, List[str]],output_filename: str = "_ocr.json",) -> Dict[int, Dict[str, Any]]:
         """
         Run OCR for the given input (single PDF path or list of paths).
         Writes a JSON file to `output_dir/output_filename` and returns the results.
         """
-        logging.info("Starting OCR run (limit=%s)", limit)
-        results = self.pipeline.run_pdf_ocr(input_path, limit=limit)
+        logging.info("Starting OCR run ")
+        results = self.pipeline.run_pdf_ocr(input_path)
         output_path = os.path.join(self.output_dir, output_filename)
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
